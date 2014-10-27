@@ -1,0 +1,7 @@
+Django==1.7
+argparse==1.2.1
+ipdb==0.8
+ipython==2.2.0
+konch==0.4.2
+psycopg2==2.5.4
+wsgiref==0.1.2

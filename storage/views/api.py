@@ -29,10 +29,11 @@ class AssetVersionViewSet(viewsets.ModelViewSet):
         fetch large object from pg and gives it back to user via HTTP 1.1
         request
 
-        :param request:
-        :param pk:
+        :param request: django request instance
+        :param pk: requested resource primary key
         :rtype: django.http.HttpResponse
-        :return:
+        :rtype: HttpResponse
+        :return: file with its filename stored in database
         """
         obj = self.get_object_or_none()
         if obj:

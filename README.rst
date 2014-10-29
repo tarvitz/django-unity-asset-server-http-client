@@ -44,7 +44,7 @@ You can fetch data from unity asset server (based on posgres 8.3) using this:
    ... <AssetVersion: Actions.xml [36]>, <AssetVersion: Actions.xml [35]>,
    ... <AssetVersion: Actions.xml [34]>, '...(remaining elements truncated)...']
    >>> version = versions.get(revision=45)
-   >>> print(version.get_blob_data()
+   >>> print(version.get_blob_data())
    ... <?xml version="1.0" encoding="utf-8"?>
    ... <DocumentElement>
    ...     <Data_Table>

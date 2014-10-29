@@ -1,4 +1,5 @@
 from django.db import models
+import struct
 
 # Create your models here.
 
@@ -27,14 +28,28 @@ class Asset(models.Model):
     serial = models.IntegerField(primary_key=True)
     guid = models.BinaryField(max_length=128)
 
+    def get_guid(self):
+        """ gives int guid number instead of 01010.. sequence
+
+        :rtype: int
+        :return: guid
+        """
+        return int('0b%s' % self.guid, 2)
+
     class Meta:
         db_table = 'asset'
 
 
 class AssetContent(models.Model):
-    version = models.IntegerField(db_column='assetversion')
+    version = models.PositiveIntegerField(primary_key=True,
+                                          db_column='assetversion')
     tag = models.TextField()
-    stream = models.ForeignKey('Stream', db_column='stream')
+    stream = models.ForeignKey('storage.Stream', db_column='stream')
+
+    versions = models.ForeignKey(
+        'storage.AssetVersion', related_name='asset_content_version_set',
+        db_column='assetversion'
+    )
 
     class Meta:
         db_table = 'assetcontents'
@@ -61,6 +76,39 @@ class AssetVersion(models.Model):
 
     def __unicode__(self):
         return '%s [%s]' % (self.name, self.revision)
+
+    @property
+    def contents(self):
+        return self.asset_content_version_set
+
+    def get_digest(self):
+        """ return int uuid number for digest
+
+        :rtype: int
+        :return: digest
+        """
+        a, b = struct.unpack('>QQ', str(self.digest))
+        return (a << 64) | b
+
+    def get_blob_data(self, tag_target='asset', force=False):
+        """
+        get asset version content using pg large object streams
+
+        :param bool force: False by default, forces get content from database
+            instead of using cached value
+        :rtype: str
+        :return: content in raw format
+        """
+        if hasattr(self, '_blob_data') and not force:
+            return self._blob_data
+
+        self._blob_data = ''
+        asset_contents = self.contents.filter(tag=tag_target)
+        for asset_content in asset_contents:
+            blobs = asset_content.stream.get_blobs()
+            for blob in blobs:
+                self._blob_data += str(blob.data)
+        return self._blob_data
 
     class Meta:
         db_table = 'assetversion'
@@ -131,9 +179,27 @@ class Role(models.Model):
         db_table = 'role'
 
 
+class PGLargeObject(models.Model):
+    loid = models.PositiveIntegerField(primary_key=True, db_column='loid')
+    pageno = models.PositiveIntegerField()
+    data = models.BinaryField(null=True, blank=True)
+    stream = models.ForeignKey('storage.Stream', db_column='loid',
+                               related_name='lo_stream_set')
+
+    class Meta:
+        db_table = 'pg_largeobject'
+
+
 class Stream(models.Model):
-    lobj = models.TextField(primary_key=True)  # This field type is a guess.
+    lobj = models.TextField(primary_key=True)
     signature = models.BinaryField(blank=True, null=True)
+
+    @property
+    def blobs(self):
+        return self.lo_stream_set
+
+    def get_blobs(self):
+        return self.blobs.all()
 
     class Meta:
         db_table = 'stream'

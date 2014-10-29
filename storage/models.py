@@ -194,6 +194,7 @@ class Stream(models.Model):
     lobj = models.TextField(primary_key=True)
     signature = models.BinaryField(blank=True, null=True)
 
+
     @property
     def blobs(self):
         return self.lo_stream_set

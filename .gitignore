@@ -1,4 +1,4 @@
 *.py[co]
 *.sw[po]
 .idea
-
+assettools/settings/local.py

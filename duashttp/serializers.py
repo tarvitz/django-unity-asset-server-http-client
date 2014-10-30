@@ -1,5 +1,5 @@
 # coding: utf-8
-from storage.models import AssetVersion
+from duashttp.models import AssetVersion
 
 from rest_framework import serializers
 

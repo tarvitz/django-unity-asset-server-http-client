@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from storage.serializers import AssetVersionSerializer
-from storage.models import AssetVersion
-from storage.filters import AssetVersionFilter
+from duashttp.serializers import AssetVersionSerializer
+from duashttp.models import AssetVersion
+from duashttp.filters import AssetVersionFilter
 
 from rest_framework import viewsets
 from rest_framework.response import Response

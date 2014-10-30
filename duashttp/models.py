@@ -42,14 +42,12 @@ class Asset(models.Model):
 
 
 class AssetContent(models.Model):
-    version = models.PositiveIntegerField(primary_key=True,
-                                          db_column='assetversion')
     tag = models.TextField()
-    stream = models.ForeignKey('storage.Stream', db_column='stream')
+    stream = models.ForeignKey('duashttp.Stream', db_column='stream')
 
     versions = models.ForeignKey(
-        'storage.AssetVersion', related_name='asset_content_version_set',
-        db_column='assetversion'
+        'duashttp.AssetVersion', related_name='asset_content_version_set',
+        db_column='assetversion', primary_key=True
     )
 
     class Meta:
@@ -66,13 +64,13 @@ class AssetType(models.Model):
 
 class AssetVersion(models.Model):
     serial = models.IntegerField(primary_key=True)
-    asset = models.ForeignKey(Asset, db_column='asset')
+    asset = models.ForeignKey('duashttp.Asset', db_column='asset')
     parent = models.IntegerField(blank=True, null=True)
     name = models.TextField(blank=True)
-    variant = models.ForeignKey('storage.Variant', db_column='variant')
+    variant = models.ForeignKey('duashttp.Variant', db_column='variant')
     revision = models.IntegerField()
     created_in = models.IntegerField()
-    type = models.ForeignKey('storage.AssetType', db_column='assettype')
+    type = models.ForeignKey('duashttp.AssetType', db_column='assettype')
     digest = models.BinaryField(blank=True, null=True)
 
     def __unicode__(self):
@@ -120,7 +118,7 @@ class ChangeSet(models.Model):
     serial = models.IntegerField(primary_key=True)
     description = models.TextField(blank=True)
     commit_time = models.DateTimeField(blank=True, null=True)
-    creator = models.ForeignKey('Person', db_column='creator')
+    creator = models.ForeignKey('duashttp.Person', db_column='creator')
     frozen = models.NullBooleanField()
     client_version = models.TextField(blank=True)
 
@@ -129,8 +127,8 @@ class ChangeSet(models.Model):
 
 
 class ChangeSetContent(models.Model):
-    changeset = models.ForeignKey('storage.ChangeSet', db_column='changeset')
-    asset_version = models.ForeignKey('storage.AssetVersion',
+    changeset = models.ForeignKey('duashttp.ChangeSet', db_column='changeset')
+    asset_version = models.ForeignKey('duashttp.AssetVersion',
                                       db_column='assetversion', unique=True)
 
     class Meta:
@@ -181,11 +179,10 @@ class Role(models.Model):
 
 
 class PGLargeObject(models.Model):
-    loid = models.PositiveIntegerField(primary_key=True, db_column='loid')
     pageno = models.PositiveIntegerField()
     data = models.BinaryField(null=True, blank=True)
-    stream = models.ForeignKey('storage.Stream', db_column='loid',
-                               related_name='lo_stream_set')
+    stream = models.ForeignKey('duashttp.Stream', db_column='loid',
+                               related_name='lo_stream_set', primary_key=True)
 
     class Meta:
         db_table = 'pg_largeobject'
@@ -216,23 +213,25 @@ class Variant(models.Model):
     basetime = models.DateTimeField(blank=True, null=True)
     dynamic = models.BooleanField()
     frozen = models.BooleanField()
-    role = models.ForeignKey(Role, db_column='role', blank=True, null=True)
+    role = models.ForeignKey('duashttp.Role', db_column='role', blank=True, null=True)
 
     class Meta:
         db_table = 'variant'
 
 
 class VariantContent(models.Model):
-    variant = models.ForeignKey('storage.Variant', db_column='variant')
-    changeset = models.ForeignKey('storage.ChangeSet', db_column='changeset')
+    variant = models.ForeignKey('duashttp.Variant', db_column='variant')
+    changeset = models.ForeignKey('duashttp.ChangeSet', db_column='changeset')
 
     class Meta:
         db_table = 'variantcontents'
 
 
 class VariantInheritance(models.Model):
-    child = models.ForeignKey('storage.Variant', db_column='child')
-    parent = models.ForeignKey('storage.Variant', db_column='parent')
+    child = models.ForeignKey('duashttp.Variant', db_column='child',
+                              related_name='inheritance_child_set')
+    parent = models.ForeignKey('duashttp.Variant', db_column='parent',
+                               related_name='inheritance_parent_set')
     depth = models.IntegerField()
 
     class Meta:

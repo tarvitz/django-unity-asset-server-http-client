@@ -2,3 +2,6 @@
 *.sw[po]
 .idea
 assettools/settings/local.py
+dist
+build
+*.egg-info

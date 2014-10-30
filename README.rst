@@ -6,11 +6,6 @@ Unity Assets Server http client
    :depth: 2
 
 
-TODO
-----
-
-- make possible download searched asset with HTTP 1.1 request (REST-api)
-
 LICENSE
 -------
 MIT
@@ -20,6 +15,8 @@ Requirements
 
 - python 2.7
 - django 1.6+
+- djangorestframework 2.4.3+
+- django-filter 0.8
 
 see ``requirements/base.txt`` for virtualenv/pip installation
 

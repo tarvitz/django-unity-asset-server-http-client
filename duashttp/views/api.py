@@ -11,12 +11,12 @@ from rest_framework.decorators import action
 from rest_framework import status
 
 from django.http import HttpResponse
-__all__ = ['AssetVersionViewSet', ]
+__all__ = ['AssetVersionViewSetBase', ]
 
 
-class AssetVersionViewSet(viewsets.ModelViewSet):
+class AssetVersionViewSetBase(viewsets.ModelViewSet):
     """
-    AssetVersionViewSet api control viewset
+    AssetVersionViewSetBase api control viewset
     """
     queryset = AssetVersion.objects.all()
     serializer_class = AssetVersionSerializer

@@ -29,7 +29,9 @@ Quick start
     )
 
 2. Manage your ``settings.py`` with django restframe work settings to
-get optimal config::
+get optimal config:
+
+.. code-block:: python
 
    REST_FRAMEWORK = {
     'PAGINATE_BY': 10,
@@ -43,7 +45,9 @@ get optimal config::
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
    }
 
-3. Apply your custom view sets or use existent and include them in "urls.py"::
+3. Apply your custom view sets or use existent and include them in "urls.py":
+
+.. code-block:: python
 
    # -*- views.py -*-
    from duashttp.views.api import AssetVersionViewSetBase
@@ -70,6 +74,8 @@ get optimal config::
            page = self.paginate_queryset(docs)
            serializer = self.get_pagination_serializer(page)
            return Response(serializer.data)
+
+.. code-block:: python
 
    # -*- urls.py -*-
    from django.conf.urls import patterns, include, url

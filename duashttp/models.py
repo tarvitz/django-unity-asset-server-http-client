@@ -1,3 +1,4 @@
+import six
 from django.db import models
 import struct
 
@@ -73,6 +74,9 @@ class AssetVersion(models.Model):
     type = models.ForeignKey('duashttp.AssetType', db_column='assettype')
     digest = models.BinaryField(blank=True, null=True)
 
+    def __str__(self):
+        return self.__unicode__()
+
     def __unicode__(self):
         return '%s [%s]' % (self.name, self.revision)
 
@@ -86,7 +90,7 @@ class AssetVersion(models.Model):
         :rtype: int
         :return: digest
         """
-        a, b = struct.unpack('>QQ', str(self.digest))
+        a, b = struct.unpack('>QQ', self.digest)
         return (a << 64) | b
 
     def get_blob_data(self, tag_target='asset', force=False):
@@ -101,12 +105,15 @@ class AssetVersion(models.Model):
         if hasattr(self, '_blob_data') and not force:
             return self._blob_data
 
-        self._blob_data = ''
+        if six.PY2:
+            self._blob_data = six.binary_type('')
+        elif six.PY3:
+            self._blob_data = six.binary_type('', encoding='ascii')
         asset_contents = self.contents.filter(tag=tag_target)
         for asset_content in asset_contents:
             blobs = asset_content.stream.get_blobs()
             for blob in blobs:
-                self._blob_data += str(blob.data)
+                self._blob_data += six.binary_type(blob.data)
         return self._blob_data
 
     class Meta:

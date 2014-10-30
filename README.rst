@@ -1,6 +1,8 @@
 ===============================
 Unity Assets Server http client
 ===============================
+.. image:: https://badge.fury.io/py/django-unity-asset-server-http-client.svg
+    :target: http://badge.fury.io/py/django-unity-asset-server-http-client
 
 .. contents:: :local:
    :depth: 2

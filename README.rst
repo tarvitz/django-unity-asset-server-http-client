@@ -44,9 +44,8 @@ unity db separatelly so wait for next release:
          'PASSWORD': 'admin_password',
          'HOST': '192.168.0.1',  # There UNITY asset server is placed on
          'PORT': '10733'  # standard unity asset server port number
-    }
-}
-
+       }
+   }
 
 
 2. Manage your ``settings.py`` with django restframe work settings to

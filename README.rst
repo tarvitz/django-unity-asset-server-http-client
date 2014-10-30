@@ -30,10 +30,30 @@ Quick start
         'duashttp',
     )
 
+1.A. Unity Asset Server use postgresql 8.3 version so you should connect to
+database to read blob data from it. Current release have not routing for using
+unity db separatelly so wait for next release:
+
+.. code-block:: python
+
+   DATABASES = {
+      'default': {
+         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+         'NAME': 'game_project_database_name',
+         'USER': 'admin',
+         'PASSWORD': 'admin_password',
+         'HOST': '192.168.0.1',  # There UNITY asset server is placed on
+         'PORT': '10733'  # standard unity asset server port number
+    }
+}
+
+
+
 2. Manage your ``settings.py`` with django restframe work settings to
 get optimal config:
 
 .. code-block:: python
+
 
    REST_FRAMEWORK = {
     'PAGINATE_BY': 10,

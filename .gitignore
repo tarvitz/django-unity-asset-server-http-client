@@ -1,7 +1,8 @@
 *.py[co]
 *.sw[po]
 .idea
-assettools/settings/local.py
-dist
-build
-*.egg-info
+/assettools/settings/local.py
+/dist
+/build
+/*.egg-info
+/requirements

@@ -18,19 +18,84 @@ Requirements
 - djangorestframework 2.4.3+
 - django-filter 0.8
 
-see ``requirements/base.txt`` for virtualenv/pip installation
+Quick start
+-----------
 
-- ``requirements/all.txt`` - all requirements with dev deps
-- ``requirements/base.txt`` - base requirements
-- ``requirements/dev.txt`` - development related packages
+1. Add "duashttp" to your INSTALLED_APPS setting like this::
 
-Fast USE
---------
+    INSTALLED_APPS = (
+        ...
+        'duashttp',
+    )
+
+2. Manage your ``settings.py`` with django restframe work settings to
+get optimal config::
+
+   REST_FRAMEWORK = {
+    'PAGINATE_BY': 10,
+    'PAGINATE_BY_PARAM': 'page_size',
+    # Maximum limit allowed when using `?page_size=xxx`.
+    'MAX_PAGINATE_BY': 100,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+   }
+
+3. Apply your custom view sets or use existent and include them in "urls.py"::
+
+   # -*- views.py -*-
+   from duashttp.views.api import AssetVersionViewSetBase
+
+   from rest_framework.decorators import list_route
+   from rest_framework.response import Response
+
+   from django.db.models import Q
+
+
+   class AssetVersionViewSet(AssetVersionViewSetBase):
+       """ AssetVersion view set """
+       @list_route()
+       def configs(self, request):
+           """get xml configs with their last revision"""
+           qset = (
+               Q(name__icontains='.xml') &
+               ~Q(name__icontains='(DEL_') &
+               ~Q(name__icontains='~$')
+           )
+           xml_docs = self.queryset.filter(qset).order_by(
+               'name', '-revision').distinct('name')
+           docs = self.filter_queryset(xml_docs)
+           page = self.paginate_queryset(docs)
+           serializer = self.get_pagination_serializer(page)
+           return Response(serializer.data)
+
+   # -*- urls.py -*-
+   from django.conf.urls import patterns, include, url
+   from views import *
+   from rest_framework import routers
+
+   router = routers.DefaultRouter()
+   router.register(r'asset_versions', AssetVersionViewSet)
+
+
+   urlpatterns = patterns('',
+       # Examples:
+       url(r'^api/', include(router.urls)),
+       url(r'^api/', include(router.urls, namespace='api')),
+   )
+
+4. Start the development server and visit http://127.0.0.1:8000/api/
+   to see available api calls.
+
+Models
+------
 You can fetch data from unity asset server (based on posgres 8.3) using this:
 
 .. code-block:: python
 
-   >>> from storage.models import AssetVersion
+   >>> from duashttp.models import AssetVersion
    >>> versions = AssetVersion.objects.filter(name__icontains='Actions.xml')
    >>> versions
    ... [<AssetVersion: Actions.xml [46]>, <AssetVersion: Actions.xml [45]>,

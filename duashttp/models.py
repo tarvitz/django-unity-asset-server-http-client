@@ -16,7 +16,7 @@ class Databases(models.Model):
 
 
 class ActiveUsers(models.Model):
-    enabled = models.NullBooleanField()
+    enabled = models.NullBooleanField(default=False)
     username = models.TextField(blank=True)  # This field type is a guess.
     realname = models.TextField(blank=True)
     email = models.TextField(blank=True)
@@ -119,7 +119,7 @@ class ChangeSet(models.Model):
     description = models.TextField(blank=True)
     commit_time = models.DateTimeField(blank=True, null=True)
     creator = models.ForeignKey('duashttp.Person', db_column='creator')
-    frozen = models.NullBooleanField()
+    frozen = models.NullBooleanField(default=False)
     client_version = models.TextField(blank=True)
 
     class Meta:
@@ -146,7 +146,7 @@ class ConfigurationMatview(models.Model):
 class Person(models.Model):
     serial = models.IntegerField(primary_key=True)
     username = models.TextField(unique=True)
-    active = models.BooleanField()
+    active = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'person'
@@ -211,8 +211,8 @@ class Variant(models.Model):
     base_variant = models.ForeignKey('self', db_column='base_variant',
                                      blank=True, null=True)
     basetime = models.DateTimeField(blank=True, null=True)
-    dynamic = models.BooleanField()
-    frozen = models.BooleanField()
+    dynamic = models.BooleanField(default=False)
+    frozen = models.BooleanField(default=False)
     role = models.ForeignKey('duashttp.Role', db_column='role', blank=True, null=True)
 
     class Meta:

@@ -5,7 +5,8 @@ import struct
 
 
 class Databases(models.Model):
-    database = models.TextField(blank=True, db_column='databasename')  # This field type is a guess.
+    #: This field type is a guess.
+    database = models.TextField(blank=True, db_column='databasename')
     project = models.TextField(blank=True, db_column='projectname')
     description = models.TextField(blank=True)
     version = models.TextField(blank=True)

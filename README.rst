@@ -30,14 +30,21 @@ Quick start
         'duashttp',
     )
 
-1.A. Unity Asset Server use postgresql 8.3 version so you should connect to
-database to read blob data from it. Current release have not routing for using
-unity db separatelly so wait for next release:
+2. Add unity asset server router in your INSTALLED_APPS settings and configure
+access to unity asset server access.
+
+.. code-block:: python
+
+  DATABASE_ROUTERS = ['duashttp.router.UnityAssetServerRouter', ]
 
 .. code-block:: python
 
    DATABASES = {
       'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+      },
+      'unity_asset_server': {
          'ENGINE': 'django.db.backends.postgresql_psycopg2',
          'NAME': 'game_project_database_name',
          'USER': 'admin',
@@ -48,7 +55,7 @@ unity db separatelly so wait for next release:
    }
 
 
-2. Manage your ``settings.py`` with django restframe work settings to
+3. Manage your ``settings.py`` with django restframe work settings to
 get optimal config:
 
 .. code-block:: python
@@ -66,7 +73,7 @@ get optimal config:
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
    }
 
-3. Apply your custom view sets or use existent and include them in "urls.py":
+4. Apply your custom view sets or use existent and include them in "urls.py":
 
 .. code-block:: python
 
@@ -113,7 +120,7 @@ get optimal config:
        url(r'^api/', include(router.urls, namespace='api')),
    )
 
-4. Start the development server and visit http://127.0.0.1:8000/api/
+5. Start the development server and visit http://127.0.0.1:8000/api/
    to see available api calls.
 
 Models

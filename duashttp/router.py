@@ -24,12 +24,12 @@ class UnityAssetServerRouter(object):
         """
         Attempts to write auth models go to duashttp.
         """
-        if not DUAS_ENABLE_DB_WRITE:
-            raise ImproperlyConfigured(
-                "Set `DUAS_ENABLE_DB_WRITE` to True in your settings to enable "
-                "write operations on unity asset server database"
-            )
         if model._meta.app_label == 'duashttp':
+            if not DUAS_ENABLE_DB_WRITE:
+                raise ImproperlyConfigured(
+                    "Set `DUAS_ENABLE_DB_WRITE` to True in your settings to enable "
+                    "write operations on unity asset server database"
+                )
             return DUAS_DB_ROUTE_PREFIX
         return None
 

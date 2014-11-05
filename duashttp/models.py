@@ -59,6 +59,12 @@ class AssetType(models.Model):
     serial = models.IntegerField(primary_key=True)
     description = models.TextField(unique=True)
 
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return self.description
+
     class Meta:
         db_table = 'assettype'
 
@@ -66,7 +72,9 @@ class AssetType(models.Model):
 class AssetVersion(models.Model):
     serial = models.IntegerField(primary_key=True)
     asset = models.ForeignKey('duashttp.Asset', db_column='asset')
-    parent = models.IntegerField(blank=True, null=True)
+    parent = models.ForeignKey('duashttp.Asset', blank=True, null=True,
+                               db_column='parent',
+                               related_name='asset_version_parent_set')
     name = models.TextField(blank=True)
     variant = models.ForeignKey('duashttp.Variant', db_column='variant')
     revision = models.IntegerField()

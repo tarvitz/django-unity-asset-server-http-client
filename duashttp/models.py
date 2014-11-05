@@ -227,7 +227,8 @@ class Variant(models.Model):
 
 
 class VariantContent(models.Model):
-    variant = models.ForeignKey('duashttp.Variant', db_column='variant')
+    variant = models.ForeignKey('duashttp.Variant', db_column='variant',
+                                primary_key=True)
     changeset = models.ForeignKey('duashttp.ChangeSet', db_column='changeset')
 
     class Meta:

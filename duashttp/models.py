@@ -1,4 +1,5 @@
 import six
+import hashlib
 from django.db import models
 import struct
 
@@ -30,6 +31,9 @@ class Asset(models.Model):
     serial = models.IntegerField(primary_key=True)
     guid = models.BinaryField(max_length=128)
 
+    def __unicode__(self):
+        return "<Asset %s>" % self.pk
+
     def get_guid(self):
         """ gives int guid number instead of 01010.. sequence
 
@@ -45,8 +49,7 @@ class Asset(models.Model):
 class AssetContent(models.Model):
     tag = models.TextField()
     stream = models.ForeignKey('duashttp.Stream', db_column='stream')
-
-    versions = models.ForeignKey(
+    version = models.ForeignKey(
         'duashttp.AssetVersion', related_name='asset_content_version_set',
         db_column='assetversion', primary_key=True
     )
@@ -89,6 +92,10 @@ class AssetVersion(models.Model):
         return '%s [%s]' % (self.name, self.revision)
 
     @property
+    def history_commit(self):
+        return self.changesetcontent_set.get()
+
+    @property
     def contents(self):
         return self.asset_content_version_set
 
@@ -100,6 +107,18 @@ class AssetVersion(models.Model):
         """
         a, b = struct.unpack('>QQ', self.digest)
         return (a << 64) | b
+
+    def get_blob_hash(self, h=hashlib.md5):
+        """
+        get hash instance of blob content
+
+        :param h: callable hash generator
+        :type h: builtin_function_or_method
+        :rtype: _hashlib.HASH
+        :return: hash instance
+        """
+        assert callable(h)
+        return h(self.get_blob_data())
 
     def get_blob_data(self, tag_target='asset', force=False):
         """
@@ -137,14 +156,35 @@ class ChangeSet(models.Model):
     frozen = models.NullBooleanField(default=False)
     client_version = models.TextField(blank=True)
 
+    @property
+    def changes(self):
+        return self.change_set_content_set.all()
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return '%s [%s, by %s]' % (self.description, self.client_version,
+                                   self.creator.username)
+
     class Meta:
         db_table = 'changeset'
+        ordering = ['-commit_time', ]
 
 
 class ChangeSetContent(models.Model):
-    changeset = models.ForeignKey('duashttp.ChangeSet', db_column='changeset')
+    changeset = models.ForeignKey('duashttp.ChangeSet',
+                                  db_column='changeset',
+                                  related_name='change_set_content_set',
+                                  primary_key=True)
     asset_version = models.ForeignKey('duashttp.AssetVersion',
                                       db_column='assetversion', unique=True)
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return self.asset_version.__unicode__()
 
     class Meta:
         db_table = 'changesetcontents'
@@ -163,16 +203,14 @@ class Person(models.Model):
     username = models.TextField(unique=True)
     active = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return self.username
+
     class Meta:
         db_table = 'person'
-
-
-class PersonRole(models.Model):
-    person = models.IntegerField()
-    role = models.IntegerField()
-
-    class Meta:
-        db_table = 'personroles'
 
 
 class Reinheritance(models.Model):
@@ -189,8 +227,30 @@ class Role(models.Model):
     description = models.TextField(blank=True)
     automatic = models.NullBooleanField()
 
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return self.name
+
     class Meta:
         db_table = 'role'
+
+
+class PersonRole(models.Model):
+    person = models.ForeignKey('duashttp.Person', primary_key=True,
+                               db_column='person')
+    role = models.ForeignKey('duashttp.Role', db_column='role',
+                             related_name='person_role_set')
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return '%s [%s]' % (self.person.username, self.role.name)
+
+    class Meta:
+        db_table = 'personroles'
 
 
 class PGLargeObject(models.Model):
@@ -206,7 +266,6 @@ class PGLargeObject(models.Model):
 class Stream(models.Model):
     lobj = models.TextField(primary_key=True)
     signature = models.BinaryField(blank=True, null=True)
-
 
     @property
     def blobs(self):
@@ -229,6 +288,12 @@ class Variant(models.Model):
     dynamic = models.BooleanField(default=False)
     frozen = models.BooleanField(default=False)
     role = models.ForeignKey('duashttp.Role', db_column='role', blank=True, null=True)
+
+    def __str__(self):
+        return self.__unicode__()
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         db_table = 'variant'

@@ -1,6 +1,8 @@
 ===============================
 Unity Assets Server http client
 ===============================
+**INFO** I'm not workig in company that thinks that using unity asset server as VCS is fucking good idea. So I can not continue to build solutions I used with this simple tool. Knowledges I discovered should be enough to get automated your processes whatever your task is.
+
 .. image:: https://badge.fury.io/py/django-unity-asset-server-http-client.svg
     :target: http://badge.fury.io/py/django-unity-asset-server-http-client
 
